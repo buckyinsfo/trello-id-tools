@@ -1,0 +1,161 @@
+:root {
+  --background: #ffffff;
+  --surface: #f8fafc;
+  --text: #172b4d;
+  --muted: #5e6c84;
+  --border: #dfe1e6;
+  --accent: #0c66e4;
+  --success: #1f845a;
+  --error: #ca3521;
+  --shadow: 0 8px 18px rgba(23, 43, 77, 0.08);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+}
+
+body {
+  font-family: inherit;
+}
+
+.connector-page,
+.popup-page,
+.settings-page {
+  padding: 12px;
+}
+
+.connector-shell,
+.status-card,
+.settings-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--background);
+  box-shadow: var(--shadow);
+}
+
+.connector-shell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+}
+
+.connector-shell h1,
+.settings-header h1,
+.status-card p,
+.settings-header p,
+.settings-status {
+  margin: 0;
+}
+
+.connector-shell h1,
+.settings-header h1 {
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.connector-shell p,
+.settings-header p,
+.settings-status {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.status-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  min-height: 52px;
+}
+
+#status-message {
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+#status-message[data-state="success"],
+.settings-status[data-state="success"] {
+  color: var(--success);
+}
+
+#status-message[data-state="error"],
+.settings-status[data-state="error"] {
+  color: var(--error);
+}
+
+.settings-card {
+  padding: 16px;
+}
+
+.settings-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.checkbox-row input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.settings-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.primary-button {
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #ffffff;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.primary-button:focus-visible,
+.checkbox-row:focus-within {
+  outline: 2px solid rgba(12, 102, 228, 0.25);
+  outline-offset: 2px;
+}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Trello ID Tools Settings</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="settings-page">
+    <main id="settings-root" class="settings-card">
+      <header class="settings-header">
+        <img src="./icons/icon.png" alt="" width="16" height="16" />
+        <div>
+          <h1>Button Settings</h1>
+          <p>Choose which copy buttons appear on cards.</p>
+        </div>
+      </header>
+
+      <form id="settings-form" class="settings-form">
+        <label class="checkbox-row">
+          <input type="checkbox" name="showCardId" />
+          <span>Show Card ID button</span>
+        </label>
+
+        <label class="checkbox-row">
+          <input type="checkbox" name="showListId" />
+          <span>Show List ID button</span>
+        </label>
+
+        <label class="checkbox-row">
+          <input type="checkbox" name="showBoardId" />
+          <span>Show Board ID button</span>
+        </label>
+
+        <label class="checkbox-row">
+          <input type="checkbox" name="showCardUrl" />
+          <span>Show Card URL button</span>
+        </label>
+
+        <label class="checkbox-row">
+          <input type="checkbox" name="showMetadata" />
+          <span>Show Metadata button</span>
+        </label>
+
+        <div class="settings-actions">
+          <button type="submit" class="primary-button">Save Settings</button>
+          <p id="settings-status" class="settings-status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </main>
+
+    <script src="https://p.trellocdn.com/power-up.min.js"></script>
+    <script src="./settings.js"></script>
+  </body>
+</html>

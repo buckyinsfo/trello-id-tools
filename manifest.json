@@ -1,0 +1,15 @@
+{
+  "name": "trello-id-tools",
+  "description": "Copy Trello card, list, board IDs, URLs, and structured card metadata from configurable card buttons.",
+  "version": "1.0.0",
+  "author": "buckyinsfo",
+  "homepage": "https://buckyinsfo.github.io/trello-id-tools/",
+  "connectorUrl": "https://buckyinsfo.github.io/trello-id-tools/index.html",
+  "capabilities": [
+    "card-buttons",
+    "show-settings"
+  ],
+  "icons": {
+    "16": "https://buckyinsfo.github.io/trello-id-tools/icons/icon.png"
+  }
+}
