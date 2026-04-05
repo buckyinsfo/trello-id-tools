@@ -39,9 +39,9 @@ const getTrelloValue = async (action) => {
 };
 
 t.render(async () => {
-  const action       = t.arg('action');
-  const autoCopy     = t.arg('autoCopy');
-  const showValueInPopup = t.arg('showValueInPopup');
+  const action           = t.arg('action');
+  const autoCopy         = t.arg('autoCopy') === 'true';
+  const showValueInPopup = t.arg('showValueInPopup') === 'true';
 
   const valueView  = document.getElementById('value-view');
   const statusView = document.getElementById('status-view');
@@ -62,7 +62,6 @@ t.render(async () => {
     valueView.style.display = 'block';
     await t.sizeTo('#popup-root');
 
-    // Select the value
     valueInput.focus();
     valueInput.select();
 
@@ -84,11 +83,8 @@ t.render(async () => {
       }
     };
 
-    // Wire up the copy button for manual mode
     copyBtn.addEventListener('click', doCopy);
 
-    // Auto-copy: focus the button and programmatically click it so the
-    // copy fires with a real DOM event in the rendered iframe context
     if (autoCopy) {
       copyBtn.focus();
       copyBtn.click();

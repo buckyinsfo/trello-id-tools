@@ -42,7 +42,11 @@ const openCopyPopup = (t, action, showValueInPopup, autoCopy) => {
   return t.popup({
     title: 'Trello ID Tools',
     url: './popup.html',
-    args: { action, showValueInPopup, autoCopy },
+    args: {
+      action,
+      showValueInPopup: showValueInPopup ? 'true' : 'false',
+      autoCopy: autoCopy ? 'true' : 'false',
+    },
     height: 120,
   });
 };
