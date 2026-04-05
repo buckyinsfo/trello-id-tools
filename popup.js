@@ -68,24 +68,15 @@ const getTrelloContextData = async () => {
   return contextData;
 };
 
-const copyTextToClipboard = async (text) => {
+const copyTextToClipboard = (text) => {
   const str = String(text);
 
-  // Try the modern Clipboard API first (works when iframe is focused)
-  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-    try {
-      await navigator.clipboard.writeText(str);
-      return;
-    } catch (e) {
-      debugLog('Clipboard API failed, falling back to execCommand', e);
-    }
-  }
-
-  // Fallback: textarea + execCommand (works in Trello iframe context)
+  // Use textarea + execCommand — reliable in Trello's iframe context
+  // where navigator.clipboard requires document focus that the iframe doesn't have.
   const textarea = document.createElement('textarea');
   textarea.value = str;
   textarea.setAttribute('readonly', '');
-  textarea.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+  textarea.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none;';
   document.body.appendChild(textarea);
   textarea.focus();
   textarea.select();
@@ -96,6 +87,8 @@ const copyTextToClipboard = async (text) => {
   if (!success) {
     throw new Error('Unable to copy to clipboard. Please try again.');
   }
+
+  debugLog('Copied via execCommand', str.substring(0, 40));
 };
 
 const runCopyAction = async () => {
@@ -114,7 +107,7 @@ const runCopyAction = async () => {
     throw new Error('Requested Trello value is not available.');
   }
 
-  await copyTextToClipboard(valueToCopy);
+  copyTextToClipboard(valueToCopy);
   setStatus(action.confirmation, 'success');
   closePopupSoon();
 };
