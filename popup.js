@@ -39,7 +39,8 @@ const getTrelloValue = async (action) => {
 };
 
 t.render(async () => {
-  const action           = t.arg('action');
+  const action       = t.arg('action');
+  const autoCopy     = t.arg('autoCopy');
   const showValueInPopup = t.arg('showValueInPopup');
 
   const valueView  = document.getElementById('value-view');
@@ -61,13 +62,11 @@ t.render(async () => {
     valueView.style.display = 'block';
     await t.sizeTo('#popup-root');
 
-    // Pre-select the value
+    // Select the value
     valueInput.focus();
     valueInput.select();
 
-    // Copy button — uses execCommand on the already-selected visible input,
-    // triggered by a real user click. This is how rwjdk's Power-Up does it.
-    copyBtn.addEventListener('click', () => {
+    const doCopy = () => {
       valueInput.select();
       const success = document.execCommand('copy');
       if (success) {
@@ -83,7 +82,17 @@ t.render(async () => {
         hint.dataset.state = '';
         t.sizeTo('#popup-root');
       }
-    });
+    };
+
+    // Wire up the copy button for manual mode
+    copyBtn.addEventListener('click', doCopy);
+
+    // Auto-copy: focus the button and programmatically click it so the
+    // copy fires with a real DOM event in the rendered iframe context
+    if (autoCopy) {
+      copyBtn.focus();
+      copyBtn.click();
+    }
 
   } catch (err) {
     debugLog('Popup error', err.message);

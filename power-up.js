@@ -18,14 +18,6 @@ const BUTTON_DEFINITIONS = Object.freeze([
   { action: 'metadata', text: 'Copy Metadata',  settingKey: 'showMetadata' },
 ]);
 
-const LABELS = Object.freeze({
-  cardId:   'Card ID',
-  listId:   'List ID',
-  boardId:  'Board ID',
-  cardUrl:  'Card URL',
-  metadata: 'Metadata JSON',
-});
-
 const ICON_URL = './icons/icon.png';
 
 const debugLog = (...args) => {
@@ -46,56 +38,11 @@ const loadSettings = async (t) => {
   }
 };
 
-const resolveValue = async (t, action) => {
-  const [card, list, board] = await Promise.all([
-    t.card('id', 'url', 'shortLink', 'idShort'),
-    t.list('id'),
-    t.board('id'),
-  ]);
-  switch (action) {
-    case 'cardId':   return card.id;
-    case 'listId':   return list.id;
-    case 'boardId':  return board.id;
-    case 'cardUrl':  return card.url;
-    case 'metadata': return JSON.stringify({
-      cardId:     card.id,
-      listId:     list.id,
-      boardId:    board.id,
-      cardUrl:    card.url,
-      shortLink:  card.shortLink,
-      cardNumber: card.idShort,
-    }, null, 2);
-    default: throw new Error(`Unknown action: ${action}`);
-  }
-};
-
-// Auto-copy: fetch value, copy silently via a hidden input in index.html,
-// show a Trello toast. No popup opens at all.
-const autoCopyValue = async (t, action) => {
-  try {
-    const value = await resolveValue(t, action);
-
-    // Write value into the hidden input on the connector page and copy from there
-    const hiddenInput = document.getElementById('auto-copy-input');
-    hiddenInput.value = value;
-    hiddenInput.select();
-    document.execCommand('copy');
-    hiddenInput.value = '';
-
-    debugLog('Auto-copied', action, String(value).substring(0, 40));
-    t.alert({ message: `${LABELS[action]} copied to clipboard` });
-  } catch (err) {
-    debugLog('Auto-copy failed', err.message);
-    t.alert({ message: `Failed to copy ${LABELS[action]}` });
-  }
-};
-
-// Manual mode: open popup to display value, user clicks Copy button.
-const openCopyPopup = (t, action, showValueInPopup) => {
+const openCopyPopup = (t, action, showValueInPopup, autoCopy) => {
   return t.popup({
     title: 'Trello ID Tools',
     url: './popup.html',
-    args: { action, showValueInPopup },
+    args: { action, showValueInPopup, autoCopy },
     height: 120,
   });
 };
@@ -110,9 +57,12 @@ const buildCardButtons = async (t) => {
       icon: ICON_URL,
       text,
       condition: 'always',
-      callback: settings.autoCopy
-        ? (callbackT) => autoCopyValue(callbackT, action)
-        : (callbackT) => openCopyPopup(callbackT, action, settings.showValueInPopup),
+      callback: (callbackT) => openCopyPopup(
+        callbackT,
+        action,
+        settings.showValueInPopup,
+        settings.autoCopy
+      ),
     }));
 };
 
