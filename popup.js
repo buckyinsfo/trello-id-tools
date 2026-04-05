@@ -92,8 +92,10 @@ t.render(async () => {
     copyBtn.addEventListener('click', doCopy);
 
     if (autoCopy) {
-      copyBtn.focus();
-      copyBtn.click();
+      requestAnimationFrame(() => {
+        copyBtn.focus();
+        copyBtn.click();
+      });
     }
 
   } catch (err) {
