@@ -69,11 +69,33 @@ const getTrelloContextData = async () => {
 };
 
 const copyTextToClipboard = async (text) => {
-  if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
-    throw new Error('Clipboard access is unavailable in this browser context.');
+  const str = String(text);
+
+  // Try the modern Clipboard API first (works when iframe is focused)
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    try {
+      await navigator.clipboard.writeText(str);
+      return;
+    } catch (e) {
+      debugLog('Clipboard API failed, falling back to execCommand', e);
+    }
   }
 
-  await navigator.clipboard.writeText(String(text));
+  // Fallback: textarea + execCommand (works in Trello iframe context)
+  const textarea = document.createElement('textarea');
+  textarea.value = str;
+  textarea.setAttribute('readonly', '');
+  textarea.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+
+  const success = document.execCommand('copy');
+  document.body.removeChild(textarea);
+
+  if (!success) {
+    throw new Error('Unable to copy to clipboard. Please try again.');
+  }
 };
 
 const runCopyAction = async () => {
@@ -93,8 +115,7 @@ const runCopyAction = async () => {
   }
 
   await copyTextToClipboard(valueToCopy);
-  let successMessage = action.confirmation;
-  setStatus(`${successMessage}`, 'success');
+  setStatus(action.confirmation, 'success');
   closePopupSoon();
 };
 
