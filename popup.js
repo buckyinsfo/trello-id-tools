@@ -68,27 +68,47 @@ const getTrelloContextData = async () => {
   return contextData;
 };
 
-const copyTextToClipboard = (text) => {
+const copyTextToClipboard = async (text) => {
   const str = String(text);
 
-  // Use textarea + execCommand — reliable in Trello's iframe context
-  // where navigator.clipboard requires document focus that the iframe doesn't have.
-  const textarea = document.createElement('textarea');
-  textarea.value = str;
-  textarea.setAttribute('readonly', '');
-  textarea.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none;';
-  document.body.appendChild(textarea);
-  textarea.focus();
-  textarea.select();
+  // Focus the window first so clipboard API has a user-activation context
+  window.focus();
 
-  const success = document.execCommand('copy');
-  document.body.removeChild(textarea);
-
-  if (!success) {
-    throw new Error('Unable to copy to clipboard. Please try again.');
+  // Try modern Clipboard API after focusing
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    try {
+      await navigator.clipboard.writeText(str);
+      debugLog('Copied via Clipboard API');
+      return;
+    } catch (e) {
+      debugLog('Clipboard API failed', e.message);
+    }
   }
 
-  debugLog('Copied via execCommand', str.substring(0, 40));
+  // Fallback: input element trick (more reliable than textarea in iframes)
+  const input = document.createElement('input');
+  input.setAttribute('readonly', '');
+  input.value = str;
+  input.style.cssText = 'position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:none;outline:none;box-shadow:none;background:transparent;';
+  document.body.appendChild(input);
+  input.focus();
+  input.select();
+  input.setSelectionRange(0, input.value.length);
+
+  let success = false;
+  try {
+    success = document.execCommand('copy');
+  } catch (e) {
+    debugLog('execCommand failed', e.message);
+  }
+
+  document.body.removeChild(input);
+
+  if (!success) {
+    throw new Error('Clipboard unavailable. Please copy manually.');
+  }
+
+  debugLog('Copied via execCommand fallback');
 };
 
 const runCopyAction = async () => {
@@ -107,7 +127,7 @@ const runCopyAction = async () => {
     throw new Error('Requested Trello value is not available.');
   }
 
-  copyTextToClipboard(valueToCopy);
+  await copyTextToClipboard(valueToCopy);
   setStatus(action.confirmation, 'success');
   closePopupSoon();
 };
