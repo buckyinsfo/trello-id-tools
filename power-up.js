@@ -1,11 +1,12 @@
 const DEBUG = false;
 const SETTINGS_KEY = 'settings';
 const DEFAULT_SETTINGS = Object.freeze({
-  showCardId: true,
-  showListId: true,
-  showBoardId: true,
-  showCardUrl: true,
-  showMetadata: true,
+  showCardId:    true,
+  showListId:    true,
+  showBoardId:   true,
+  showCardUrl:   true,
+  showMetadata:  true,
+  showValueInPopup: true,
 });
 
 const BUTTON_DEFINITIONS = Object.freeze([
@@ -36,80 +37,34 @@ const loadSettings = async (t) => {
   }
 };
 
-const resolveValue = async (t, action) => {
-  const [card, list, board] = await Promise.all([
-    t.card('id', 'url', 'shortLink', 'idShort'),
-    t.list('id'),
-    t.board('id'),
-  ]);
-
-  switch (action) {
-    case 'cardId':   return card.id;
-    case 'listId':   return list.id;
-    case 'boardId':  return board.id;
-    case 'cardUrl':  return card.url;
-    case 'metadata': return JSON.stringify({
-      cardId: card.id,
-      listId: list.id,
-      boardId: board.id,
-      cardUrl: card.url,
-      shortLink: card.shortLink,
-      cardNumber: card.idShort,
-    }, null, 2);
-    default: throw new Error(`Unknown action: ${action}`);
-  }
-};
-
-const CONFIRMATIONS = {
-  cardId:   'Copied Card ID ✓',
-  listId:   'Copied List ID ✓',
-  boardId:  'Copied Board ID ✓',
-  cardUrl:  'Copied Card URL ✓',
-  metadata: 'Copied Metadata ✓',
-};
-
-// Copy to clipboard directly in the card button callback context —
-// this runs in Trello's native UI context which has clipboard access,
-// unlike the sandboxed popup iframe which blocks clipboard writes.
-const handleCopyAction = (action) => async (t) => {
-  try {
-    const value = await resolveValue(t, action);
-    await navigator.clipboard.writeText(String(value));
-    debugLog('Copied', action, String(value).substring(0, 40));
-
-    // Show a brief confirmation popup
-    return t.popup({
-      title: CONFIRMATIONS[action],
-      url: './popup.html',
-      args: { message: CONFIRMATIONS[action], state: 'success' },
-      height: 60,
-    });
-  } catch (err) {
-    debugLog('Copy failed', err.message);
-    return t.popup({
-      title: 'Copy to Clipboard',
-      url: './popup.html',
-      args: { message: err.message || 'Unable to copy.', state: 'error' },
-      height: 60,
-    });
-  }
+// Each button opens the popup, passing the action and showValue preference.
+// The popup handles both displaying the value and copying to clipboard on user click.
+const handleButtonClick = (action, showValueInPopup) => (t) => {
+  return t.popup({
+    title: 'Trello ID Tools',
+    url: './popup.html',
+    args: { action, showValueInPopup },
+    height: showValueInPopup ? 200 : 80,
+  });
 };
 
 const openSettings = (t) => t.popup({
   title: 'Trello ID Tools Settings',
   url: './settings.html',
-  height: 340,
+  height: 370,
 });
 
 const buildCardButtons = async (t) => {
   const settings = await loadSettings(t);
+  debugLog('Settings loaded', settings);
+
   return BUTTON_DEFINITIONS
     .filter(({ settingKey }) => settings[settingKey])
     .map(({ action, text }) => ({
       icon: ICON_URL,
       text,
       condition: 'always',
-      callback: handleCopyAction(action),
+      callback: handleButtonClick(action, settings.showValueInPopup),
     }));
 };
 

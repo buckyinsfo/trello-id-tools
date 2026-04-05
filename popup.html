@@ -4,13 +4,27 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light" />
-    <title>Copy Trello Data</title>
+    <title>Trello ID Tools</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body class="popup-page">
-    <main id="popup-root" class="status-card" role="status" aria-live="polite">
-      <img src="./icons/icon.png" alt="" width="16" height="16" />
-      <p id="status-message">Copying...</p>
+    <main id="popup-root" class="popup-card">
+
+      <!-- Shown when showValueInPopup is true -->
+      <div id="value-view" class="value-view" style="display:none;">
+        <p id="value-label" class="value-label"></p>
+        <div class="value-row">
+          <input id="value-input" class="value-input" type="text" readonly />
+          <button id="copy-btn" class="copy-btn" type="button">Copy</button>
+        </div>
+        <p id="copy-status" class="copy-status" aria-live="polite"></p>
+      </div>
+
+      <!-- Shown when showValueInPopup is false (silent copy feedback) -->
+      <div id="status-view" class="status-view" style="display:none;">
+        <p id="status-message" class="status-message"></p>
+      </div>
+
     </main>
 
     <script src="https://p.trellocdn.com/power-up.min.js"></script>
