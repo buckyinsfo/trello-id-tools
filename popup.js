@@ -1,4 +1,4 @@
-const DEBUG = false;
+const DEBUG = true;
 
 const LABELS = {
   cardId:   'Card ID',
@@ -40,8 +40,11 @@ const getTrelloValue = async (action) => {
 
 t.render(async () => {
   const action           = t.arg('action');
-  const autoCopy         = t.arg('autoCopy') === 'true';
+  const autoCopyRaw      = t.arg('autoCopy');
+  const autoCopy         = autoCopyRaw === 'true';
   const showValueInPopup = t.arg('showValueInPopup') === 'true';
+
+  debugLog('Args received — action:', action, '| autoCopyRaw:', autoCopyRaw, '| autoCopy:', autoCopy, '| showValueInPopup:', showValueInPopup);
 
   const valueView  = document.getElementById('value-view');
   const statusView = document.getElementById('status-view');
@@ -66,8 +69,10 @@ t.render(async () => {
     valueInput.select();
 
     const doCopy = () => {
+      debugLog('doCopy called');
       valueInput.select();
       const success = document.execCommand('copy');
+      debugLog('execCommand copy result:', success);
       if (success) {
         hint.textContent = 'Copied ✓';
         hint.dataset.state = 'success';
@@ -86,8 +91,11 @@ t.render(async () => {
     copyBtn.addEventListener('click', doCopy);
 
     if (autoCopy) {
+      debugLog('autoCopy is true — calling copyBtn.focus() and copyBtn.click()');
       copyBtn.focus();
       copyBtn.click();
+    } else {
+      debugLog('autoCopy is false — waiting for manual click');
     }
 
   } catch (err) {
