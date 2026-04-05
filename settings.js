@@ -8,6 +8,7 @@ const DEFAULT_SETTINGS = Object.freeze({
   showCardUrl:      true,
   showMetadata:     true,
   showValueInPopup: true,
+  autoCopy:         false,
 });
 
 const SETTING_FIELDS = Object.freeze([
@@ -17,6 +18,7 @@ const SETTING_FIELDS = Object.freeze([
   'showCardUrl',
   'showMetadata',
   'showValueInPopup',
+  'autoCopy',
 ]);
 
 const t = window.TrelloPowerUp.iframe();
