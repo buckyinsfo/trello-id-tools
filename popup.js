@@ -44,14 +44,17 @@ t.render(async () => {
   const autoCopy         = autoCopyRaw === 'true';
   const showValueInPopup = t.arg('showValueInPopup') === 'true';
 
-  debugLog('Args received — action:', action, '| autoCopyRaw:', autoCopyRaw, '| autoCopy:', autoCopy, '| showValueInPopup:', showValueInPopup);
-
   const valueView  = document.getElementById('value-view');
   const statusView = document.getElementById('status-view');
 
+  // Show arg values directly on screen for debugging
+  const debugDisplay = document.getElementById('debug-display');
+  debugDisplay.textContent = `action="${action}" autoCopyRaw="${autoCopyRaw}" autoCopy=${autoCopy} showValueInPopup=${showValueInPopup}`;
+  debugDisplay.style.display = 'block';
+  await t.sizeTo('#popup-root');
+
   try {
     const value = await getTrelloValue(action);
-    debugLog('Resolved value', action, String(value).substring(0, 40));
 
     const valueLabel = document.getElementById('value-label');
     const valueInput = document.getElementById('value-input');
@@ -69,10 +72,8 @@ t.render(async () => {
     valueInput.select();
 
     const doCopy = () => {
-      debugLog('doCopy called');
       valueInput.select();
       const success = document.execCommand('copy');
-      debugLog('execCommand copy result:', success);
       if (success) {
         hint.textContent = 'Copied ✓';
         hint.dataset.state = 'success';
@@ -91,11 +92,8 @@ t.render(async () => {
     copyBtn.addEventListener('click', doCopy);
 
     if (autoCopy) {
-      debugLog('autoCopy is true — calling copyBtn.focus() and copyBtn.click()');
       copyBtn.focus();
       copyBtn.click();
-    } else {
-      debugLog('autoCopy is false — waiting for manual click');
     }
 
   } catch (err) {
