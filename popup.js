@@ -1,12 +1,4 @@
-const DEBUG = true;
-
-const LABELS = {
-  cardId:   'Card ID',
-  listId:   'List ID',
-  boardId:  'Board ID',
-  cardUrl:  'Card URL',
-  metadata: 'Metadata JSON',
-};
+const DEBUG = false;
 
 const t = window.TrelloPowerUp.iframe();
 
@@ -14,96 +6,105 @@ const debugLog = (...args) => {
   if (DEBUG) console.debug('[trello-id-tools]', ...args);
 };
 
-const getTrelloValue = async (action) => {
-  const [card, list, board] = await Promise.all([
-    t.card('id', 'url', 'shortLink', 'idShort'),
-    t.list('id'),
-    t.board('id'),
-  ]);
+// execCommand('copy') on a visible selected element.
+// MUST be called from a real user gesture (click/keypress).
+const copyToClipboard = (text) => {
+  const input = document.getElementById('value-input');
+  input.value = text;
+  input.style.display = 'block';
+  input.focus();
+  input.select();
+  input.setSelectionRange(0, text.length);
+  const success = document.execCommand('copy');
+  input.style.display = '';
+  return success;
+};
 
-  switch (action) {
-    case 'cardId':   return card.id;
-    case 'listId':   return list.id;
-    case 'boardId':  return board.id;
-    case 'cardUrl':  return card.url;
-    case 'metadata': return JSON.stringify({
-      cardId:     card.id,
-      listId:     list.id,
-      boardId:    board.id,
-      cardUrl:    card.url,
-      shortLink:  card.shortLink,
-      cardNumber: card.idShort,
-    }, null, 2);
-    default: throw new Error(`Unknown action: ${action}`);
-  }
+const onCopySuccess = (label) => {
+  t.alert({ message: `${label} copied to clipboard`, duration: 3 });
+  window.setTimeout(() => t.closePopup(), 80);
 };
 
 t.render(async () => {
-  const action           = t.arg('action');
-  const autoCopyRaw      = t.arg('autoCopy');
-  const autoCopy         = autoCopyRaw === 'true';
+  const label            = t.arg('label') || 'Value';
+  const value            = t.arg('value') || '';
+  const autoCopy         = t.arg('autoCopy') === 'true';
   const showValueInPopup = t.arg('showValueInPopup') === 'true';
 
-  const valueView  = document.getElementById('value-view');
+  debugLog('Args:', { label, autoCopy, showValueInPopup, valueLength: value.length });
+
+  const autoView   = document.getElementById('auto-view');
+  const manualView = document.getElementById('manual-view');
   const statusView = document.getElementById('status-view');
 
-  // Show arg values directly on screen for debugging
-  const debugDisplay = document.getElementById('debug-display');
-  debugDisplay.textContent = `action="${action}" autoCopyRaw="${autoCopyRaw}" autoCopy=${autoCopy} showValueInPopup=${showValueInPopup}`;
-  debugDisplay.style.display = 'block';
-  await t.sizeTo('#popup-root');
+  if (autoCopy) {
+    // ── Auto-copy mode ──
+    // Show a full-surface button. The user clicks it — that IS a real
+    // trusted gesture — so execCommand('copy') succeeds.
+    // Pre-focus with rAF so Enter/Space also works immediately.
+    const btn = document.getElementById('btn-auto');
+    btn.textContent = `Click to copy ${label}`;
 
-  try {
-    const value = await getTrelloValue(action);
+    autoView.style.display = 'block';
+    await t.sizeTo('#popup-root');
 
+    btn.addEventListener('click', () => {
+      const success = copyToClipboard(value);
+      if (success) {
+        onCopySuccess(label);
+      } else {
+        // Fallback: switch to manual view
+        autoView.style.display  = 'none';
+        manualView.style.display = 'block';
+        document.getElementById('value-label').textContent = label;
+        document.getElementById('copy-status').textContent = 'Click Copy or press ⌘C';
+        t.sizeTo('#popup-root');
+      }
+    });
+
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        btn.click();
+      }
+    });
+
+    // Pre-focus so Enter works without a mouse click
+    requestAnimationFrame(() => btn.focus());
+
+  } else {
+    // ── Manual mode ──
     const valueLabel = document.getElementById('value-label');
     const valueInput = document.getElementById('value-input');
-    const copyBtn    = document.getElementById('copy-btn');
+    const copyBtn    = document.getElementById('btn-manual');
     const hint       = document.getElementById('copy-status');
 
-    valueLabel.textContent = LABELS[action] || action;
-    valueInput.value = value;
-    hint.textContent = 'Value ready — click Copy or press ⌘C';
+    valueLabel.textContent = label;
+    valueInput.value       = value;
+    hint.textContent       = 'Value ready — click Copy or press ⌘C';
 
-    valueView.style.display = 'block';
+    manualView.style.display = 'block';
     await t.sizeTo('#popup-root');
 
     valueInput.focus();
     valueInput.select();
 
-    const doCopy = () => {
+    copyBtn.addEventListener('click', () => {
       valueInput.select();
       const success = document.execCommand('copy');
       if (success) {
-        hint.textContent = 'Copied ✓';
-        hint.dataset.state = 'success';
+        hint.textContent    = 'Copied ✓';
+        hint.dataset.state  = 'success';
         copyBtn.textContent = 'Copied ✓';
-        copyBtn.disabled = true;
+        copyBtn.disabled    = true;
         t.sizeTo('#popup-root');
-        t.alert({ message: `${LABELS[action]} copied to clipboard` });
+        t.alert({ message: `${label} copied to clipboard`, duration: 3 });
         window.setTimeout(() => t.closePopup(), 1200);
       } else {
-        hint.textContent = 'Press ⌘C to copy';
+        hint.textContent   = 'Press ⌘C to copy';
         hint.dataset.state = '';
         t.sizeTo('#popup-root');
       }
-    };
-
-    copyBtn.addEventListener('click', doCopy);
-
-    if (autoCopy) {
-      requestAnimationFrame(() => {
-        copyBtn.focus();
-        copyBtn.click();
-      });
-    }
-
-  } catch (err) {
-    debugLog('Popup error', err.message);
-    const statusMessage = document.getElementById('status-message');
-    statusView.style.display = 'block';
-    statusMessage.textContent = err.message || 'Something went wrong.';
-    statusMessage.dataset.state = 'error';
-    await t.sizeTo('#popup-root');
+    });
   }
 });

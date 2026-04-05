@@ -59,6 +59,33 @@ html, body {
   padding: 14px 16px;
 }
 
+/* ── Auto-copy full-surface button ──
+   Fills the entire popup. User clicks it → real trusted gesture
+   → execCommand('copy') succeeds. Height controlled by power-up.js. */
+.auto-copy-btn {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #ffffff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+
+.auto-copy-btn:hover {
+  background: #0550b3;
+}
+
+.auto-copy-btn:focus-visible {
+  outline: 2px solid rgba(12, 102, 228, 0.4);
+  outline-offset: 2px;
+}
+
 /* Value display view */
 .value-view {
   display: flex;

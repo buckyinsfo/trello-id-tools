@@ -10,20 +10,22 @@
   <body class="popup-page">
     <main id="popup-root" class="popup-card">
 
-      <!-- Temporary debug display -->
-      <p id="debug-display" style="display:none; font-size:11px; color:#ca3521; word-break:break-all; margin:0 0 8px;"></p>
+      <!-- Auto-copy mode: full-surface button — user's click is a real trusted gesture -->
+      <div id="auto-view" style="display:none;">
+        <button id="btn-auto" class="auto-copy-btn" type="button"></button>
+      </div>
 
-      <!-- Value display view -->
-      <div id="value-view" class="value-view" style="display:none;">
+      <!-- Manual mode: value in text input + Copy button -->
+      <div id="manual-view" class="value-view" style="display:none;">
         <p id="value-label" class="value-label"></p>
         <div class="value-row">
           <input id="value-input" class="value-input" type="text" readonly />
-          <button id="copy-btn" class="copy-btn" type="button">Copy</button>
+          <button id="btn-manual" class="copy-btn" type="button">Copy</button>
         </div>
         <p id="copy-status" class="copy-status" aria-live="polite"></p>
       </div>
 
-      <!-- Error / status view -->
+      <!-- Error view -->
       <div id="status-view" class="status-view" style="display:none;">
         <p id="status-message" class="status-message"></p>
       </div>

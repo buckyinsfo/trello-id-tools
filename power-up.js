@@ -11,11 +11,11 @@ const DEFAULT_SETTINGS = Object.freeze({
 });
 
 const BUTTON_DEFINITIONS = Object.freeze([
-  { action: 'cardId',   text: 'Copy Card ID',   settingKey: 'showCardId'   },
-  { action: 'listId',   text: 'Copy List ID',   settingKey: 'showListId'   },
-  { action: 'boardId',  text: 'Copy Board ID',  settingKey: 'showBoardId'  },
-  { action: 'cardUrl',  text: 'Copy Card URL',  settingKey: 'showCardUrl'  },
-  { action: 'metadata', text: 'Copy Metadata',  settingKey: 'showMetadata' },
+  { action: 'cardId',   text: 'Copy Card ID',   label: 'Card ID',      settingKey: 'showCardId'   },
+  { action: 'listId',   text: 'Copy List ID',   label: 'List ID',      settingKey: 'showListId'   },
+  { action: 'boardId',  text: 'Copy Board ID',  label: 'Board ID',     settingKey: 'showBoardId'  },
+  { action: 'cardUrl',  text: 'Copy Card URL',  label: 'Card URL',     settingKey: 'showCardUrl'  },
+  { action: 'metadata', text: 'Copy Metadata',  label: 'Metadata JSON', settingKey: 'showMetadata' },
 ]);
 
 const ICON_URL = './icons/icon.png';
@@ -38,16 +38,45 @@ const loadSettings = async (t) => {
   }
 };
 
-const openCopyPopup = (t, action, showValueInPopup, autoCopy) => {
+const resolveValue = async (t, action) => {
+  const [card, list, board] = await Promise.all([
+    t.card('id', 'url', 'shortLink', 'idShort'),
+    t.list('id'),
+    t.board('id'),
+  ]);
+  switch (action) {
+    case 'cardId':   return card.id;
+    case 'listId':   return list.id;
+    case 'boardId':  return board.id;
+    case 'cardUrl':  return card.url;
+    case 'metadata': return JSON.stringify({
+      cardId:     card.id,
+      listId:     list.id,
+      boardId:    board.id,
+      cardUrl:    card.url,
+      shortLink:  card.shortLink,
+      cardNumber: card.idShort,
+    }, null, 2);
+    default: throw new Error(`Unknown action: ${action}`);
+  }
+};
+
+// Opus's key insight: resolve the value BEFORE opening the popup
+// and pass it as an arg. That way the popup just shows a button —
+// no async fetching needed inside the popup iframe, and the user's
+// click on that button is a clean trusted gesture for execCommand.
+const handleButtonClick = (action, label, settings) => async (t) => {
+  const value = await resolveValue(t, action);
   return t.popup({
-    title: 'Trello ID Tools',
+    title: settings.autoCopy ? `Copy ${label}` : 'Trello ID Tools',
     url: './popup.html',
     args: {
-      action,
-      showValueInPopup: showValueInPopup ? 'true' : 'false',
-      autoCopy: autoCopy ? 'true' : 'false',
+      label,
+      value,
+      autoCopy:         settings.autoCopy         ? 'true' : 'false',
+      showValueInPopup: settings.showValueInPopup  ? 'true' : 'false',
     },
-    height: 120,
+    height: settings.autoCopy ? 60 : 120,
   });
 };
 
@@ -57,16 +86,11 @@ const buildCardButtons = async (t) => {
 
   return BUTTON_DEFINITIONS
     .filter(({ settingKey }) => settings[settingKey])
-    .map(({ action, text }) => ({
+    .map(({ action, text, label }) => ({
       icon: ICON_URL,
       text,
       condition: 'always',
-      callback: (callbackT) => openCopyPopup(
-        callbackT,
-        action,
-        settings.showValueInPopup,
-        settings.autoCopy
-      ),
+      callback: handleButtonClick(action, label, settings),
     }));
 };
 
