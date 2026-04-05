@@ -1,30 +1,25 @@
 const DEBUG = false;
-const CLOSE_DELAY_MS = 1500;
+const CLOSE_DELAY_MS = 900;
 
 const ACTIONS = Object.freeze({
   cardId: {
-    confirmation: 'Copied Card ID ✓',
-    fallback: 'Card ID',
+    confirmation: 'Copied Card ID',
     resolveValue: ({ card }) => card.id,
   },
   listId: {
-    confirmation: 'Copied List ID ✓',
-    fallback: 'List ID',
+    confirmation: 'Copied List ID',
     resolveValue: ({ list }) => list.id,
   },
   boardId: {
-    confirmation: 'Copied Board ID ✓',
-    fallback: 'Board ID',
+    confirmation: 'Copied Board ID',
     resolveValue: ({ board }) => board.id,
   },
   cardUrl: {
-    confirmation: 'Copied Card URL ✓',
-    fallback: 'Card URL',
+    confirmation: 'Copied Card URL',
     resolveValue: ({ card }) => card.url,
   },
   metadata: {
-    confirmation: 'Copied Metadata ✓',
-    fallback: 'Metadata',
+    confirmation: 'Copied Metadata',
     resolveValue: ({ card, list, board }) =>
       JSON.stringify(
         {
@@ -43,7 +38,6 @@ const ACTIONS = Object.freeze({
 
 const t = window.TrelloPowerUp.iframe();
 const statusMessage = document.getElementById('status-message');
-const valueDisplay = document.getElementById('value-display');
 
 const debugLog = (...args) => {
   if (DEBUG) {
@@ -56,21 +50,10 @@ const setStatus = (message, state = 'success') => {
   statusMessage.dataset.state = state;
 };
 
-const showValue = (value) => {
-  valueDisplay.value = value;
-  valueDisplay.style.display = 'block';
-  valueDisplay.focus();
-  valueDisplay.select();
-};
-
-const hideValue = () => {
-  valueDisplay.style.display = 'none';
-};
-
-const closePopupSoon = (delay = CLOSE_DELAY_MS) => {
+const closePopupSoon = () => {
   window.setTimeout(() => {
     t.closePopup();
-  }, delay);
+  }, CLOSE_DELAY_MS);
 };
 
 const getTrelloContextData = async () => {
@@ -85,32 +68,30 @@ const getTrelloContextData = async () => {
   return contextData;
 };
 
-const attemptClipboardCopy = async (text) => {
+const copyTextToClipboard = async (text) => {
   const str = String(text);
 
-  // Attempt 1: Modern Clipboard API
+  // Use navigator.clipboard — works once the popup iframe has focus
   if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
-    try {
-      await navigator.clipboard.writeText(str);
-      debugLog('Copied via Clipboard API');
-      return true;
-    } catch (e) {
-      debugLog('Clipboard API failed', e.message);
-    }
+    await navigator.clipboard.writeText(str);
+    debugLog('Copied via Clipboard API', str.substring(0, 40));
+    return;
   }
 
-  // Attempt 2: execCommand on the visible input element (already selected)
-  try {
-    const success = document.execCommand('copy');
-    if (success) {
-      debugLog('Copied via execCommand on input');
-      return true;
-    }
-  } catch (e) {
-    debugLog('execCommand failed', e.message);
-  }
+  // Fallback for older browsers
+  const textarea = document.createElement('textarea');
+  textarea.value = str;
+  textarea.setAttribute('readonly', '');
+  textarea.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  const success = document.execCommand('copy');
+  document.body.removeChild(textarea);
 
-  return false;
+  if (!success) {
+    throw new Error('Unable to copy to clipboard.');
+  }
 };
 
 const runCopyAction = async () => {
@@ -129,32 +110,20 @@ const runCopyAction = async () => {
     throw new Error('Requested Trello value is not available.');
   }
 
-  // Always show the value in the input so user can manually copy if needed
-  showValue(valueToCopy);
-
-  // Try clipboard in background
-  const copied = await attemptClipboardCopy(valueToCopy);
-
-  if (copied) {
-    hideValue();
-    setStatus(action.confirmation, 'success');
-    closePopupSoon(CLOSE_DELAY_MS);
-  } else {
-    // Clipboard blocked — show the value selected so user can hit Cmd+C
-    setStatus(`Select all & copy (⌘C)`, 'fallback');
-  }
+  await copyTextToClipboard(valueToCopy);
+  setStatus(action.confirmation, 'success');
+  closePopupSoon();
 };
 
-const initializePopup = async () => {
+// Use t.render() so clipboard runs after the popup iframe is fully
+// loaded, focused, and has user-activation context
+t.render(async () => {
   try {
+    await t.sizeTo('#popup-root');
     await runCopyAction();
   } catch (error) {
     debugLog('Copy action failed', error);
-    hideValue();
     setStatus(error.message || 'Unable to copy this value.', 'error');
-  } finally {
-    t.sizeTo('#popup-root');
+    await t.sizeTo('#popup-root');
   }
-};
-
-initializePopup();
+});
