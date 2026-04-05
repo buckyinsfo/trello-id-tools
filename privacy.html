@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Privacy Policy — Trello ID Tools</title>
+    <style>
+      :root {
+        --background: #ffffff;
+        --surface: #f8fafc;
+        --text: #172b4d;
+        --muted: #5e6c84;
+        --border: #dfe1e6;
+        --accent: #0c66e4;
+        --shadow: 0 8px 18px rgba(23, 43, 77, 0.08);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: var(--background);
+        color: var(--text);
+        font-family: inherit;
+      }
+
+      body {
+        padding: 40px 24px;
+        max-width: 640px;
+        margin: 0 auto;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 32px;
+      }
+
+      header img {
+        flex-shrink: 0;
+      }
+
+      header div {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.25;
+        color: var(--text);
+      }
+
+      header p {
+        margin: 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--background);
+        box-shadow: var(--shadow);
+        padding: 24px 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+
+      .divider {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 0;
+      }
+
+      footer {
+        margin-top: 32px;
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <img src="./icons/icon.png" alt="" width="24" height="24" />
+      <div>
+        <h1>Privacy Policy</h1>
+        <p>Trello ID Tools Power-Up</p>
+      </div>
+    </header>
+
+    <div class="card">
+      <section>
+        <h2>Overview</h2>
+        <p>
+          Trello ID Tools is a Trello Power-Up that adds configurable card
+          buttons for copying Trello IDs, card URLs, and structured metadata to
+          your clipboard. This policy describes how the Power-Up handles data.
+        </p>
+      </section>
+
+      <hr class="divider" />
+
+      <section>
+        <h2>Data Collection</h2>
+        <p>
+          This Power-Up does not collect, store, or transmit any personal data.
+          No analytics, tracking, or logging of any kind is performed. No data
+          is sent to any external server or third-party service.
+        </p>
+      </section>
+
+      <hr class="divider" />
+
+      <section>
+        <h2>Clipboard Access</h2>
+        <p>
+          When you click a copy button, the Power-Up reads the relevant Trello
+          value (such as a card ID or URL) from the Trello API and writes it
+          directly to your clipboard using the browser's standard Clipboard API.
+          This value is never stored, logged, or transmitted anywhere.
+        </p>
+      </section>
+
+      <hr class="divider" />
+
+      <section>
+        <h2>Settings Storage</h2>
+        <p>
+          Button preferences (which copy buttons are shown) are saved using
+          Trello's built-in board-level plugin data storage. This data stays
+          entirely within Trello's own infrastructure and is never accessed by
+          any external party.
+        </p>
+      </section>
+
+      <hr class="divider" />
+
+      <section>
+        <h2>Third-Party Services</h2>
+        <p>
+          This Power-Up is hosted on GitHub Pages as a static site. No
+          server-side code runs. No cookies are set. No user information is
+          processed outside of the Trello iframe context.
+        </p>
+      </section>
+
+      <hr class="divider" />
+
+      <section>
+        <h2>Contact</h2>
+        <p>
+          If you have questions about this privacy policy, please open an issue
+          on the
+          <a
+            href="https://github.com/buckyinsfo/trello-id-tools"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GitHub repository</a
+          >.
+        </p>
+      </section>
+    </div>
+
+    <footer>
+      <p>Last updated April 2026 &mdash; Trello ID Tools by buckyinsfo</p>
+    </footer>
+  </body>
+</html>
