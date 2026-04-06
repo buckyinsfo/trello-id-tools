@@ -2,13 +2,11 @@ const DEBUG = false;
 const SETTINGS_KEY = 'settings';
 const SAVE_CLOSE_DELAY_MS = 700;
 const DEFAULT_SETTINGS = Object.freeze({
-  showCardId:       true,
-  showListId:       true,
-  showBoardId:      true,
-  showCardUrl:      true,
-  showMetadata:     true,
-  showValueInPopup: true,
-  autoCopy:         false,
+  showCardId:   true,
+  showListId:   true,
+  showBoardId:  true,
+  showCardUrl:  true,
+  showMetadata: true,
 });
 
 const SETTING_FIELDS = Object.freeze([
@@ -17,8 +15,6 @@ const SETTING_FIELDS = Object.freeze([
   'showBoardId',
   'showCardUrl',
   'showMetadata',
-  'showValueInPopup',
-  'autoCopy',
 ]);
 
 const t = window.TrelloPowerUp.iframe();

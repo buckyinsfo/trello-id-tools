@@ -9,27 +9,14 @@
   </head>
   <body class="popup-page">
     <main id="popup-root" class="popup-card">
-
-      <!-- Auto-copy mode: full-surface button — user's click is a real trusted gesture -->
-      <div id="auto-view" style="display:none;">
-        <button id="btn-auto" class="auto-copy-btn" type="button"></button>
-      </div>
-
-      <!-- Manual mode: value in text input + Copy button -->
-      <div id="manual-view" class="value-view" style="display:none;">
+      <div id="value-view" class="value-view">
         <p id="value-label" class="value-label"></p>
         <div class="value-row">
           <input id="value-input" class="value-input" type="text" readonly />
-          <button id="btn-manual" class="copy-btn" type="button">Copy</button>
+          <button id="copy-btn" class="copy-btn" type="button">Copy</button>
         </div>
         <p id="copy-status" class="copy-status" aria-live="polite"></p>
       </div>
-
-      <!-- Error view -->
-      <div id="status-view" class="status-view" style="display:none;">
-        <p id="status-message" class="status-message"></p>
-      </div>
-
     </main>
 
     <script src="https://p.trellocdn.com/power-up.min.js"></script>

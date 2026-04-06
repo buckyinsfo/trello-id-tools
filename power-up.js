@@ -1,21 +1,19 @@
 const DEBUG = false;
 const SETTINGS_KEY = 'settings';
 const DEFAULT_SETTINGS = Object.freeze({
-  showCardId:       true,
-  showListId:       true,
-  showBoardId:      true,
-  showCardUrl:      true,
-  showMetadata:     true,
-  showValueInPopup: true,
-  autoCopy:         false,
+  showCardId:   true,
+  showListId:   true,
+  showBoardId:  true,
+  showCardUrl:  true,
+  showMetadata: true,
 });
 
 const BUTTON_DEFINITIONS = Object.freeze([
-  { action: 'cardId',   text: 'Copy Card ID',   label: 'Card ID',      settingKey: 'showCardId'   },
-  { action: 'listId',   text: 'Copy List ID',   label: 'List ID',      settingKey: 'showListId'   },
-  { action: 'boardId',  text: 'Copy Board ID',  label: 'Board ID',     settingKey: 'showBoardId'  },
-  { action: 'cardUrl',  text: 'Copy Card URL',  label: 'Card URL',     settingKey: 'showCardUrl'  },
-  { action: 'metadata', text: 'Copy Metadata',  label: 'Metadata JSON', settingKey: 'showMetadata' },
+  { action: 'cardId',   text: 'Copy Card ID',  label: 'Card ID',       settingKey: 'showCardId'   },
+  { action: 'listId',   text: 'Copy List ID',  label: 'List ID',       settingKey: 'showListId'   },
+  { action: 'boardId',  text: 'Copy Board ID', label: 'Board ID',      settingKey: 'showBoardId'  },
+  { action: 'cardUrl',  text: 'Copy Card URL', label: 'Card URL',      settingKey: 'showCardUrl'  },
+  { action: 'metadata', text: 'Copy Metadata', label: 'Metadata JSON', settingKey: 'showMetadata' },
 ]);
 
 const ICON_URL = './icons/icon.png';
@@ -61,43 +59,33 @@ const resolveValue = async (t, action) => {
   }
 };
 
-// Opus's key insight: resolve the value BEFORE opening the popup
-// and pass it as an arg. That way the popup just shows a button —
-// no async fetching needed inside the popup iframe, and the user's
-// click on that button is a clean trusted gesture for execCommand.
-const handleButtonClick = (action, label, settings) => async (t) => {
+const handleButtonClick = (action, label) => async (t) => {
   const value = await resolveValue(t, action);
   return t.popup({
-    title: settings.autoCopy ? `Copy ${label}` : 'Trello ID Tools',
+    title: 'Trello ID Tools',
     url: './popup.html',
-    args: {
-      label,
-      value,
-      autoCopy:         settings.autoCopy         ? 'true' : 'false',
-      showValueInPopup: settings.showValueInPopup  ? 'true' : 'false',
-    },
-    height: settings.autoCopy ? 60 : 120,
+    args: { label, value },
+    height: 120,
   });
 };
 
 const buildCardButtons = async (t) => {
   const settings = await loadSettings(t);
   debugLog('Settings loaded', settings);
-
   return BUTTON_DEFINITIONS
     .filter(({ settingKey }) => settings[settingKey])
     .map(({ action, text, label }) => ({
       icon: ICON_URL,
       text,
       condition: 'always',
-      callback: handleButtonClick(action, label, settings),
+      callback: handleButtonClick(action, label),
     }));
 };
 
 const openSettings = (t) => t.popup({
   title: 'Trello ID Tools Settings',
   url: './settings.html',
-  height: 400,
+  height: 310,
 });
 
 window.TrelloPowerUp.initialize({
