@@ -13,20 +13,24 @@ This project is built with plain HTML, CSS, and modern browser JavaScript. It ru
 - Copy pretty-formatted JSON metadata with `cardId`, `listId`, `boardId`, `cardUrl`, `shortLink`, and `cardNumber`
 - Board-level settings dialog to show or hide each button independently
 - All buttons enabled by default
-- Clipboard success confirmation with auto-close
-- Visible error states for clipboard or context failures
+- Copy popup preloads the selected value, lets the user copy it with one click, and auto-closes after success
+- Safe fallback behavior if settings cannot be loaded
 - Optional debug logging via `const DEBUG = false`
 - Static GitHub Pages deployment
+- Optional static privacy policy page at `privacy.html`
 
 ## Project Structure
 
 ```text
 trello-id-tools/
+├── .gitignore
+├── LICENSE
 ├── manifest.json
 ├── power-up.js
 ├── index.html
 ├── popup.html
 ├── popup.js
+├── privacy.html
 ├── settings.html
 ├── settings.js
 ├── styles.css
@@ -55,6 +59,12 @@ No dependency install step is needed.
 
 ```text
 https://buckyinsfo.github.io/trello-id-tools/index.html
+```
+
+Optional privacy policy page:
+
+```text
+https://buckyinsfo.github.io/trello-id-tools/privacy.html
 ```
 
 ## Trello Power-Up Registration
@@ -119,6 +129,7 @@ Settings are stored with board-shared Trello plugin data so all board users see 
 - If the settings gear does not appear, confirm the `show-settings` capability is enabled.
 - If Trello cannot load the Power-Up, verify GitHub Pages is deployed and the iframe connector URL uses HTTPS.
 - If clipboard copy fails, check browser permissions and confirm the card popup is running in a secure HTTPS context.
+- If browser clipboard access is limited, the popup keeps the selected value in a focused field so you can use your normal keyboard copy shortcut.
 - If icon images do not appear, verify `icons/icon.png` is reachable from your GitHub Pages URL.
 - If settings seem incorrect, reopen the settings dialog and resave. If loading board data fails, the Power-Up automatically falls back to all buttons enabled.
 - If you turn on debug logging by changing `const DEBUG = false` to `true`, inspect browser DevTools for `console.debug()` output.
@@ -126,11 +137,12 @@ Settings are stored with board-shared Trello plugin data so all board users see 
 ## Development Notes
 
 - `power-up.js` registers the Power-Up capabilities and dynamically builds card buttons from board settings.
-- `popup.js` resolves Trello card, list, and board data, formats the selected value, writes to the clipboard, and auto-closes on success.
+- `popup.js` renders the selected value into a lightweight copy dialog, attempts clipboard copy on button click, and auto-closes on success.
 - `settings.js` loads board-shared settings, renders checkboxes, and saves updates.
 - `styles.css` provides a small shared UI layer for the connector page, popup, and settings dialog.
 - Settings are stored under the board-shared plugin data key `settings` and merged with defaults to support future options safely.
 - The code uses `const`, `let`, arrow functions, `async`/`await`, template literals, destructuring, and reusable modular functions.
+- `privacy.html` is a standalone static privacy policy page that can be linked from Trello admin settings if needed.
 
 ## Future Enhancement Ideas
 
@@ -144,4 +156,8 @@ Settings are stored with board-shared Trello plugin data so all board users see 
 
 ## License
 
-Use and adapt this project for your own Trello workflows.
+This project is licensed under the MIT License.
+
+You are free to use, modify, distribute, and adapt it for personal or commercial Trello workflows, as long as the original license notice is included.
+
+See [LICENSE](./LICENSE) for the full text.
